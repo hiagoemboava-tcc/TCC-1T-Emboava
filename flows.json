@@ -1,0 +1,257 @@
+[
+    {
+        "id": "tab1",
+        "type": "tab",
+        "label": "USV Telemetria Bluetooth",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "parser",
+        "type": "function",
+        "z": "tab1",
+        "name": "Parser CSV",
+        "func": "// Espera string no formato: timestamp,pitch,corrente,nivel_re,nivel_vante,...\\n\nlet parts = msg.payload.trim().split(\",\");\n\nlet obj = {\n    timestamp: parseInt(parts[0]) || 0,\n    pitch: parseFloat(parts[1]) || 0,\n    corrente: parseFloat(parts[6]) || 0,\n    nivel_re: parseFloat(parts[3]) || 0,\n    temp: parseInt(parts[5]) || 0,\n    nivel_vante: parseFloat(parts[4]) || 0\n};\n\nmsg.payload = obj;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 100,
+        "wires": [
+            [
+                "pitch-gauge",
+                "corrente-gauge",
+                "nivelre-gauge",
+                "csv-formatter",
+                "nivelvante-gauge"
+            ]
+        ]
+    },
+    {
+        "id": "pitch-gauge",
+        "type": "ui_gauge",
+        "z": "tab1",
+        "name": "Pitch",
+        "group": "cd1fa2fece5327e4",
+        "order": 1,
+        "width": "12",
+        "height": "8",
+        "gtype": "gage",
+        "title": "Ângulo Pitch (°)",
+        "label": "°",
+        "format": "{{msg.payload.pitch}}",
+        "min": "-7",
+        "max": "7",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 680,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "corrente-gauge",
+        "type": "ui_gauge",
+        "z": "tab1",
+        "name": "Corrente",
+        "group": "cd1fa2fece5327e4",
+        "order": 2,
+        "width": "12",
+        "height": "8",
+        "gtype": "gage",
+        "title": "Corrente (A)",
+        "label": "A",
+        "format": "{{msg.payload.corrente}}",
+        "min": "-1",
+        "max": "1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 680,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "nivelre-gauge",
+        "type": "ui_gauge",
+        "z": "tab1",
+        "name": "Nível Ré",
+        "group": "cd1fa2fece5327e4",
+        "order": 3,
+        "width": "6",
+        "height": "6",
+        "gtype": "gage",
+        "title": "Nível Ré (cm)",
+        "label": "cm",
+        "format": "{{msg.payload.nivel_re}}",
+        "min": "0",
+        "max": "20",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 680,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "nivelvante-gauge",
+        "type": "ui_gauge",
+        "z": "tab1",
+        "name": "temp",
+        "group": "cd1fa2fece5327e4",
+        "order": 4,
+        "width": "6",
+        "height": "6",
+        "gtype": "gage",
+        "title": "temperatura",
+        "label": "ºC",
+        "format": "{{msg.payload.temp}}",
+        "min": "0",
+        "max": "40",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 660,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "csv-formatter",
+        "type": "function",
+        "z": "tab1",
+        "name": "Formatar CSV",
+        "func": "// Cria linha CSV com cabeçalho: timestamp,pitch,corrente,nivel_re,nivel_vante\nlet line = `${msg.payload.timestamp},${msg.payload.pitch},${msg.payload.corrente},${msg.payload.nivel_re},${msg.payload.nivel_vante}`;\nmsg.payload = line;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 400,
+        "y": 220,
+        "wires": [
+            [
+                "csv-out"
+            ]
+        ]
+    },
+    {
+        "id": "csv-out",
+        "type": "file",
+        "z": "tab1",
+        "name": "Salvar CSV",
+        "filename": "/home/pi/telemetria.csv",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 650,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "29b39d709c162f24",
+        "type": "serial in",
+        "z": "tab1",
+        "name": "UNO Bluetooth",
+        "serial": "57053fe43cb63a14",
+        "x": 180,
+        "y": 100,
+        "wires": [
+            [
+                "parser",
+                "4d6bd1504970d3ed"
+            ]
+        ]
+    },
+    {
+        "id": "4d6bd1504970d3ed",
+        "type": "debug",
+        "z": "tab1",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 220,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "cd1fa2fece5327e4",
+        "type": "ui_group",
+        "name": "teste final",
+        "tab": "tab1-ui",
+        "order": 2,
+        "disp": true,
+        "width": "24",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "57053fe43cb63a14",
+        "type": "serial-port",
+        "name": "",
+        "serialport": "COM7",
+        "serialbaud": "9600",
+        "databits": 8,
+        "parity": "none",
+        "stopbits": 1,
+        "waitfor": "",
+        "dtr": "none",
+        "rts": "none",
+        "cts": "none",
+        "dsr": "none",
+        "newline": "\\n",
+        "bin": "false",
+        "out": "char",
+        "addchar": "string",
+        "responsetimeout": 10000
+    },
+    {
+        "id": "tab1-ui",
+        "type": "ui_tab",
+        "name": "Telemetria",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "2d96907a323f561a",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-node-serialport": "2.0.3"
+        }
+    }
+]
